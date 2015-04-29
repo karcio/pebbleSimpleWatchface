@@ -9,6 +9,11 @@
     "resources": {
         "media": [
             {
+                "file": "images/main.png",
+                "name": "MAIN",
+                "type": "png"
+            },
+            {
                 "file": "images/background.png",
                 "name": "BACKGROUND",
                 "type": "png"
