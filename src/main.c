@@ -6,6 +6,15 @@ static Window *s_main_window;
 static TextLayer * s_time_layer;
 static TextLayer * s_date_layer;
 static TextLayer *s_battery_layer;
+static TextLayer *s_bt_layer;
+
+static void bt_handler(bool connected) {
+  if (connected) {
+    text_layer_set_text(s_bt_layer, "BT:On");
+  } else {
+    text_layer_set_text(s_bt_layer, "BT:Off");
+  }
+}
 
 static void battery_handler(BatteryChargeState new_state) {
   static char s_battery_buffer[32];
@@ -59,8 +68,15 @@ static void main_window_load(Window *window) {
   text_layer_set_font(s_battery_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
   text_layer_set_text_alignment(s_battery_layer, GTextAlignmentRight);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_battery_layer));
-  
   battery_handler(battery_state_service_peek());
+  
+  s_bt_layer = text_layer_create(GRect(0, 0, 144, 25));
+  text_layer_set_background_color(s_bt_layer, GColorClear);
+  text_layer_set_text_color(s_bt_layer, GColorWhite);
+  text_layer_set_font(s_bt_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+  text_layer_set_text_alignment(s_bt_layer, GTextAlignmentLeft);
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_bt_layer));
+  bt_handler(bluetooth_connection_service_peek());
 }
 
 static void main_window_unload(Window *window) {
@@ -68,6 +84,7 @@ static void main_window_unload(Window *window) {
   text_layer_destroy(s_date_layer);
   gbitmap_destroy(s_background_bitmap);
   bitmap_layer_destroy(s_background_layer);
+  text_layer_destroy(s_bt_layer);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -86,6 +103,7 @@ static void init() {
   update_time();
   tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
   battery_state_service_subscribe(battery_handler);
+  bluetooth_connection_service_subscribe(bt_handler);
 }
 
 static void deinit() {
