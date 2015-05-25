@@ -7,6 +7,7 @@ static TextLayer * s_time_layer;
 static TextLayer * s_date_layer;
 static TextLayer *s_battery_layer;
 static TextLayer *s_bt_layer;
+static TextLayer *s_day_layer;
 
 static void bt_handler(bool connected) {
   if (connected) {
@@ -28,6 +29,7 @@ static void update_time() {
 
   static char s_timeBuffer[10] ;
   static char s_dateBuffer[12];
+  static char s_dayBuffer[12];
   
   if(clock_is_24h_style() == true) {
     strftime(s_timeBuffer, sizeof(s_timeBuffer), "%H:%M", tick_time);
@@ -39,6 +41,9 @@ static void update_time() {
   
   strftime(s_dateBuffer, sizeof(s_dateBuffer), "%e %b %Y", tick_time); 
   text_layer_set_text(s_date_layer, s_dateBuffer);
+  
+  strftime(s_dayBuffer, sizeof(s_dayBuffer), "%A", tick_time); 
+  text_layer_set_text(s_day_layer, s_dayBuffer);
 }
 
 static void main_window_load(Window *window) {
@@ -77,6 +82,13 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(s_bt_layer, GTextAlignmentLeft);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_bt_layer));
   bt_handler(bluetooth_connection_service_peek());
+  
+  s_day_layer = text_layer_create(GRect(0, 150, 144, 50));
+  text_layer_set_background_color(s_day_layer, GColorClear);
+  text_layer_set_text_color(s_day_layer, GColorWhite);
+  text_layer_set_font(s_day_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+  text_layer_set_text_alignment(s_day_layer, GTextAlignmentCenter);
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_day_layer));
 }
 
 static void main_window_unload(Window *window) {
@@ -85,6 +97,8 @@ static void main_window_unload(Window *window) {
   gbitmap_destroy(s_background_bitmap);
   bitmap_layer_destroy(s_background_layer);
   text_layer_destroy(s_bt_layer);
+  text_layer_destroy(s_day_layer);
+  text_layer_destroy(s_battery_layer);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
