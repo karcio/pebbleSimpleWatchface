@@ -9,8 +9,8 @@
     "resources": {
         "media": [
             {
-                "file": "images/main.png",
-                "name": "MAIN",
+                "file": "images/watchfaceBL_screenshot.png",
+                "name": "screenshot",
                 "type": "png"
             },
             {
